@@ -1,274 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Echoframe</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Echoframe</title>
 
-<style>
-body {
-  margin:0;
-  font-family:-apple-system;
-  background:black;
-  overflow:hidden;
-}
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="manifest" href="manifest.json"/>
 
-/* 🌌 星空 */
-#stars {
-  position:fixed;
-  width:100%;
-  height:100%;
-  z-index:-1;
-}
-
-/* 🎬 入場動畫 */
-#intro {
-  position:fixed;
-  width:100%;
-  height:100%;
-  background:black;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  color:white;
-  z-index:10;
-  animation:fadeOut 4s forwards 2s;
-}
-
-#logo {
-  width:90px;
-  height:90px;
-  border-radius:50%;
-  border:2px solid white;
-  margin-bottom:15px;
-  opacity:0;
-  animation:fadeIn 2s forwards;
-}
-
-#title {
-  font-size:28px;
-  opacity:0;
-  animation:fadeIn 2s forwards 0.5s;
-}
-
-@keyframes fadeIn {
-  to {opacity:1;}
-}
-@keyframes fadeOut {
-  to {opacity:0; visibility:hidden;}
-}
-
-/* 🌳 主畫面 */
-#app {
-  width:100%;
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  transition:1s;
-}
-
-/* 🌫 柔光 */
-.glow {
-  position:absolute;
-  width:300px;
-  height:300px;
-  border-radius:50%;
-  background:rgba(255,255,255,0.1);
-  filter:blur(80px);
-}
-
-/* 🎨 情緒按鈕 */
-.colors {
-  position:absolute;
-  bottom:30px;
-  display:flex;
-  gap:15px;
-}
-.color {
-  width:45px;
-  height:45px;
-  border-radius:50%;
-  border:2px solid white;
-  cursor:pointer;
-}
-
-/* 🎨 畫布 */
-canvas {
-  background:white;
-  border-radius:12px;
-  margin-top:20px;
-}
-
-/* 🌍 全球畫布 */
-#global {
-  display:none;
-  position:fixed;
-  width:100%;
-  height:100%;
-  background:#111;
-  color:white;
-  overflow:auto;
-}
-.post img {
-  width:100%;
-  border-radius:10px;
-  margin-bottom:10px;
-}
-
-button {
-  margin-top:10px;
-  padding:8px 15px;
-  border:none;
-  border-radius:8px;
-}
-</style>
 </head>
 
 <body>
 
-<canvas id="stars"></canvas>
-
-<!-- 🎬 intro -->
-<div id="intro">
-  <div id="logo"></div>
-  <div id="title">Echoframe</div>
+<!-- Opening -->
+<div id="splash">
+  <div class="logo">Echoframe</div>
 </div>
 
-<!-- 🌳 主畫面 -->
-<div id="app">
+<!-- Main -->
+<div id="app" class="hidden">
 
-  <div class="glow"></div>
+  <!-- 星空 + 森林 -->
+  <canvas id="bg"></canvas>
 
-  <!-- 🎨 畫布 -->
-  <canvas id="canvas" width="300" height="200"></canvas>
+  <!-- 情緒顏色 -->
+  <div class="emotion-picker">
+    <div class="color yellow" data-emotion="happy"></div>
+    <div class="color blue" data-emotion="calm"></div>
+    <div class="color gray" data-emotion="sad"></div>
+    <div class="color red" data-emotion="stress"></div>
+  </div>
 
-  <button onclick="save()">Share</button>
-  <button onclick="openGlobal()">🌍</button>
+  <!-- 畫布 -->
+  <canvas id="draw"></canvas>
 
-  <!-- 🎨 顏色選情緒 -->
-  <div class="colors">
-    <div class="color" style="background:#FFD700" onclick="mood(1)"></div>
-    <div class="color" style="background:#87CEFA" onclick="mood(2)"></div>
-    <div class="color" style="background:#444" onclick="mood(3)"></div>
-    <div class="color" style="background:#FF4C4C" onclick="mood(4)"></div>
+  <!-- Actions -->
+  <div class="actions">
+    <button id="save">Share</button>
+    <button id="galleryBtn">Global</button>
   </div>
 
 </div>
 
-<!-- 🌍 畫廊 -->
-<div id="global">
-  <h2 style="text-align:center">Global Canvas</h2>
-  <div id="gallery"></div>
-  <button onclick="closeGlobal()">Back</button>
-</div>
+<!-- Gallery -->
+<div id="gallery" class="hidden"></div>
 
-<script>
-/* 🌌 星空動畫 */
-let canvasStar = document.getElementById("stars");
-let ctxStar = canvasStar.getContext("2d");
-
-canvasStar.width = window.innerWidth;
-canvasStar.height = window.innerHeight;
-
-let stars = [];
-for(let i=0;i<120;i++){
-  stars.push({
-    x:Math.random()*canvasStar.width,
-    y:Math.random()*canvasStar.height,
-    size:Math.random()*2
-  });
-}
-
-function animateStars(){
-  ctxStar.clearRect(0,0,canvasStar.width,canvasStar.height);
-  ctxStar.fillStyle="white";
-  stars.forEach(s=>{
-    ctxStar.beginPath();
-    ctxStar.arc(s.x,s.y,s.size,0,Math.PI*2);
-    ctxStar.fill();
-    s.y += 0.2;
-    if(s.y > canvasStar.height) s.y = 0;
-  });
-  requestAnimationFrame(animateStars);
-}
-animateStars();
-
-/* 🌳 mood */
-function mood(type){
-  let app=document.getElementById("app");
-
-  if(type==1){
-    app.style.background="linear-gradient(#fceabb,#f8b500)";
-  }
-  if(type==2){
-    app.style.background="linear-gradient(#89f7fe,#66a6ff)";
-  }
-  if(type==3){
-    app.style.background="linear-gradient(#232526,#414345)";
-  }
-  if(type==4){
-    app.style.background="linear-gradient(#ff416c,#ff4b2b)";
-  }
-}
-
-/* 🎨 畫布（穩定版） */
-let canvas=document.getElementById("canvas");
-let ctx=canvas.getContext("2d");
-let drawing=false;
-
-canvas.addEventListener("mousedown",()=>drawing=true);
-canvas.addEventListener("mouseup",()=>drawing=false);
-canvas.addEventListener("mousemove",(e)=>{
-  if(!drawing) return;
-  ctx.fillRect(e.offsetX,e.offsetY,3,3);
-});
-
-/* touch */
-canvas.addEventListener("touchstart",()=>drawing=true);
-canvas.addEventListener("touchend",()=>drawing=false);
-canvas.addEventListener("touchmove",(e)=>{
-  if(!drawing) return;
-  let rect=canvas.getBoundingClientRect();
-  let x=e.touches[0].clientX-rect.left;
-  let y=e.touches[0].clientY-rect.top;
-  ctx.fillRect(x,y,3,3);
-});
-
-/* 🌍 storage */
-function save(){
-  let data=canvas.toDataURL();
-  let arr=JSON.parse(localStorage.getItem("art")||"[]");
-  arr.push(data);
-  localStorage.setItem("art",JSON.stringify(arr));
-  alert("Saved");
-}
-
-/* gallery */
-function openGlobal(){
-  let g=document.getElementById("gallery");
-  g.innerHTML="";
-  let arr=JSON.parse(localStorage.getItem("art")||"[]");
-
-  arr.forEach(img=>{
-    let div=document.createElement("div");
-    div.className="post";
-
-    let i=document.createElement("img");
-    i.src=img;
-
-    div.appendChild(i);
-    g.appendChild(div);
-  });
-
-  document.getElementById("global").style.display="block";
-}
-
-function closeGlobal(){
-  document.getElementById("global").style.display="none";
-}
-</script>
-
+<script src="app.js"></script>
 </body>
 </html>
