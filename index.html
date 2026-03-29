@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Echoframe</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    text-align: center;
+    overflow: hidden;
+}
+
+.container {
+    padding: 30px;
+}
+
+.screen {
+    display: none;
+    animation: fadeIn 0.6s ease;
+}
+
+.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+h1 {
+    font-size: 28px;
+}
+
+.mood-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: none;
+    margin: 15px;
+    transition: 0.3s;
+}
+
+.mood-btn:hover {
+    transform: scale(1.2);
+}
+
+canvas {
+    background: white;
+    border-radius: 15px;
+    width: 90%;
+    height: 220px;
+}
+
+.button {
+    padding: 12px 25px;
+    border-radius: 20px;
+    border: none;
+    margin-top: 20px;
+    font-size: 16px;
+}
+
+.ai-box {
+    background: rgba(255,255,255,0.2);
+    padding: 15px;
+    border-radius: 15px;
+    margin-top: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.light {
+    font-size: 70px;
+    margin-top: 20px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- Step 1 -->
+<div class="screen active" id="step1">
+    <h1>How do you feel?</h1>
+
+    <button class="mood-btn" style="background:#FFD93D" onclick="nextStep('happy')"></button>
+    <button class="mood-btn" style="background:#6C8EF5" onclick="nextStep('sad')"></button>
+    <button class="mood-btn" style="background:#999" onclick="nextStep('stress')"></button>
+
+    <p>Tap a color to express emotion</p>
+</div>
+
+<!-- Step 2 -->
+<div class="screen" id="step2">
+    <h1>Express it visually</h1>
+
+    <canvas id="canvas"></canvas>
+
+    <button class="button" onclick="nextStep()">Continue</button>
+</div>
+
+<!-- Step 3 -->
+<div class="screen" id="step3">
+    <h1>Your Emotional State</h1>
+
+    <div id="light" class="light">🟢</div>
+
+    <div class="ai-box" id="aiText">
+        AI is thinking...
+    </div>
+
+    <button class="button" onclick="restart()">Restart</button>
+</div>
+
+</div>
+
+<script>
+let mood = "happy";
+
+function nextStep(selectedMood) {
+    if (selectedMood) mood = selectedMood;
+
+    document.querySelector('.active').classList.remove('active');
+
+    if (!document.getElementById('step2').classList.contains('active') && selectedMood) {
+        document.getElementById('step2').classList.add('active');
+    } else {
+        document.getElementById('step3').classList.add('active');
+        updateLight();
+        simulateAI();
+    }
+}
+
+function restart() {
+    location.reload();
+}
+
+function updateLight() {
+    let light = document.getElementById("light");
+
+    if (mood === "happy") light.innerHTML = "🟢";
+    if (mood === "stress") light.innerHTML = "🟡";
+    if (mood === "sad") light.innerHTML = "🔴";
+}
+
+function simulateAI() {
+    let text = document.getElementById("aiText");
+
+    setTimeout(() => {
+        if (mood === "happy") {
+            text.innerHTML = "It’s great to see your positive energy today 🌿";
+        }
+        if (mood === "stress") {
+            text.innerHTML = "You seem a bit overwhelmed. Try taking a short breath.";
+        }
+        if (mood === "sad") {
+            text.innerHTML = "It’s okay to feel this way. You’re not alone.";
+        }
+    }, 1200);
+}
+
+// Drawing
+let canvas = document.getElementById("canvas");
+let ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth * 0.9;
+canvas.height = 220;
+
+let drawing = false;
+
+canvas.addEventListener("touchstart", () => drawing = true);
+canvas.addEventListener("touchend", () => drawing = false);
+canvas.addEventListener("touchmove", drawTouch);
+
+function drawTouch(e) {
+    if (!drawing) return;
+    let rect = canvas.getBoundingClientRect();
+    let x = e.touches[0].clientX - rect.left;
+    let y = e.touches[0].clientY - rect.top;
+    ctx.fillRect(x, y, 4, 4);
+}
+</script>
+
+</body>
+</html>
