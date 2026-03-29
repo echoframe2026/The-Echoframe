@@ -7,204 +7,193 @@
 
 <style>
 body {
-    margin:0;
-    font-family: sans-serif;
-    background:#0f172a;
-    color:white;
-    overflow:hidden;
+  margin: 0;
+  font-family: "Helvetica Neue", sans-serif;
+  background: radial-gradient(circle at center, #1e2a38, #0f1720);
+  overflow: hidden;
+  color: white;
 }
 
-/* Opening */
-#intro{
-    position:fixed;
-    width:100%;
-    height:100%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-    background:radial-gradient(circle,#1e293b,#020617);
-    animation:fadeOut 3s forwards;
-    animation-delay:2s;
+/* ===== 開場動畫 ===== */
+#intro {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  animation: fadeOut 3s forwards 3s;
 }
 
-#logo{
-    font-size:40px;
-    letter-spacing:4px;
-    opacity:0;
-    animation:fadeIn 2s forwards;
+.logo {
+  font-size: 42px;
+  letter-spacing: 4px;
+  opacity: 0;
+  animation: fadeIn 2s forwards;
 }
 
-@keyframes fadeIn{to{opacity:1}}
-@keyframes fadeOut{to{opacity:0;visibility:hidden}}
-
-/* App */
-#app{
-    opacity:0;
-    animation:showApp 2s forwards;
-    animation-delay:3s;
-}
-@keyframes showApp{to{opacity:1}}
-
-/* Background particles */
-canvas{
-    position:absolute;
-    top:0;
-    left:0;
+@keyframes fadeIn {
+  to { opacity: 1; }
 }
 
-/* UI */
-#ui{
-    position:absolute;
-    bottom:20px;
-    width:100%;
-    text-align:center;
+@keyframes fadeOut {
+  to { opacity: 0; visibility: hidden; }
 }
 
-button{
-    padding:10px 14px;
-    margin:5px;
-    border:none;
-    border-radius:20px;
-    background:rgba(255,255,255,0.1);
-    color:white;
+/* ===== 主畫面 ===== */
+#app {
+  display: none;
+  padding: 20px;
+  text-align: center;
 }
 
-/* AI text */
-#ai{
-    position:absolute;
-    top:20px;
-    width:100%;
-    text-align:center;
-    font-size:14px;
-    opacity:0.8;
+.mood-btn {
+  padding: 10px 18px;
+  margin: 5px;
+  border: none;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.1);
+  color: white;
 }
 
-/* Emotion tracker */
-#tracker{
-    position:absolute;
-    right:10px;
-    bottom:100px;
-    font-size:12px;
-    opacity:0.7;
+/* ===== 森林背景 ===== */
+.forest {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at bottom, #2e4d3c, #0f1720);
+  z-index: -1;
 }
+
+/* ===== AI畫布 ===== */
+canvas {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+/* ===== AI畫 output ===== */
+#aiArt {
+  margin-top: 20px;
+  font-size: 20px;
+}
+
+/* ===== 粒子 ===== */
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.5;
+  animation: float 6s infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px);}
+  100% { transform: translateY(-800px);}
+}
+
 </style>
 </head>
 
 <body>
 
+<!-- ===== 開場 ===== -->
 <div id="intro">
-    <div id="logo">ECHOF R A M E</div>
+  <div class="logo">ECHOFRAME</div>
 </div>
 
+<!-- ===== 森林背景 ===== -->
+<div class="forest"></div>
+
+<!-- ===== 主 App ===== -->
 <div id="app">
+  <h2>How do you feel today?</h2>
 
-<canvas id="bg"></canvas>
+  <button class="mood-btn" onclick="setMood('calm')">Calm</button>
+  <button class="mood-btn" onclick="setMood('stress')">Stress</button>
+  <button class="mood-btn" onclick="setMood('happy')">Happy</button>
 
-<div id="ai">AI is listening...</div>
+  <br>
 
-<div id="tracker">Mood log: none</div>
+  <canvas id="draw" width="300" height="200"></canvas>
 
-<div id="ui">
-    <button onclick="setMood('calm')">Calm</button>
-    <button onclick="setMood('stress')">Stress</button>
-    <button onclick="startVoice()">Voice</button>
-</div>
+  <div id="aiArt"></div>
 
+  <br>
+  <button onclick="share()">Share to Global Canvas</button>
 </div>
 
 <script>
 
-/* ===== Particle Background ===== */
-let canvas = document.getElementById("bg");
+/* ===== 入場動畫轉場 ===== */
+setTimeout(() => {
+  document.getElementById("app").style.display = "block";
+}, 3000);
+
+/* ===== Mood系統 ===== */
+function setMood(mood) {
+  if(mood === 'calm'){
+    document.body.style.background = "linear-gradient(#2c5364,#203a43,#0f2027)";
+  }
+  if(mood === 'stress'){
+    document.body.style.background = "linear-gradient(#3a1c71,#d76d77,#ffaf7b)";
+  }
+  if(mood === 'happy'){
+    document.body.style.background = "linear-gradient(#ffecd2,#fcb69f)";
+  }
+
+  generateAIArt(mood);
+}
+
+/* ===== AI 視覺回應（重點🔥） ===== */
+function generateAIArt(mood){
+  let art = "";
+
+  if(mood === "calm"){
+    art = "🌊 soft waves drifting...";
+  }
+  if(mood === "stress"){
+    art = "🌧 fragmented storm dissolving...";
+  }
+  if(mood === "happy"){
+    art = "☀️ glowing light expanding...";
+  }
+
+  document.getElementById("aiArt").innerHTML = art;
+}
+
+/* ===== 畫畫功能 ===== */
+let canvas = document.getElementById("draw");
 let ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+let drawing = false;
 
-let particles = [];
+canvas.addEventListener("mousedown", () => drawing = true);
+canvas.addEventListener("mouseup", () => drawing = false);
+canvas.addEventListener("mousemove", draw);
 
-for(let i=0;i<80;i++){
-    particles.push({
-        x:Math.random()*canvas.width,
-        y:Math.random()*canvas.height,
-        r:Math.random()*2,
-        dx:(Math.random()-0.5)*0.5,
-        dy:(Math.random()-0.5)*0.5
-    });
+function draw(e){
+  if(!drawing) return;
+  ctx.fillStyle = "white";
+  ctx.fillRect(e.offsetX, e.offsetY, 3, 3);
 }
 
-function animate(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle="white";
-
-    particles.forEach(p=>{
-        p.x+=p.dx;
-        p.y+=p.dy;
-        ctx.beginPath();
-        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-        ctx.fill();
-    });
-
-    requestAnimationFrame(animate);
-}
-animate();
-
-/* ===== Mood System ===== */
-let tracker = [];
-
-function setMood(mood){
-    let ai = document.getElementById("ai");
-
-    tracker.push(mood);
-    document.getElementById("tracker").innerText =
-        "Mood log: " + tracker.join(", ");
-
-    if(mood==="calm"){
-        ai.innerText="AI: You seem calm. Stay present.";
-    }else{
-        ai.innerText="AI: Stress detected. Try breathing.";
-    }
+/* ===== Share ===== */
+function share(){
+  alert("Shared to Global Canvas 🌍");
 }
 
-/* ===== Voice AI ===== */
-function startVoice(){
-    let ai = document.getElementById("ai");
-
-    if (!('webkitSpeechRecognition' in window)) {
-        ai.innerText = "Voice not supported";
-        return;
-    }
-
-    let recognition = new webkitSpeechRecognition();
-    recognition.lang = "en-US";
-
-    recognition.start();
-
-    recognition.onresult = function(event){
-        let text = event.results[0][0].transcript;
-        ai.innerText = "You said: " + text;
-
-        // simple AI response
-        if(text.includes("sad")){
-            ai.innerText += " | AI: I'm here with you.";
-        }else{
-            ai.innerText += " | AI: I understand.";
-        }
-    }
+/* ===== 粒子效果 ===== */
+for(let i=0;i<40;i++){
+  let p = document.createElement("div");
+  p.className = "particle";
+  p.style.left = Math.random()*100+"%";
+  p.style.top = Math.random()*100+"%";
+  document.body.appendChild(p);
 }
-
-/* ===== Swipe Effect ===== */
-let startX=0;
-document.addEventListener("touchstart",e=>{
-    startX=e.touches[0].clientX;
-});
-
-document.addEventListener("touchend",e=>{
-    let endX=e.changedTouches[0].clientX;
-    if(endX-startX>50){
-        document.body.style.background="#1e293b";
-    }
-});
 
 </script>
 
