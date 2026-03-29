@@ -1,0 +1,87 @@
+body {
+  margin: 0;
+  background: black;
+  overflow: hidden;
+  font-family: sans-serif;
+}
+
+/* Splash */
+#splash {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeOut 2s ease forwards;
+  animation-delay: 2s;
+}
+
+.logo {
+  color: white;
+  font-size: 32px;
+  opacity: 0;
+  animation: fadeIn 2s ease forwards;
+}
+
+@keyframes fadeIn { to { opacity: 1; } }
+@keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+
+/* App */
+.hidden { display: none; }
+
+#bg {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+#draw {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* Emotion */
+.emotion-picker {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.color {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  opacity: 0.8;
+}
+
+.yellow { background: #ffd54f; }
+.blue { background: #4fc3f7; }
+.gray { background: #9e9e9e; }
+.red { background: #ef5350; }
+
+/* Actions */
+.actions {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+/* Gallery */
+#gallery {
+  position: fixed;
+  background: black;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 5px;
+  overflow: auto;
+}
+#gallery img {
+  width: 100%;
+}
