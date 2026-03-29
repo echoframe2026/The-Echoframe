@@ -5,15 +5,15 @@
 <title>Echoframe</title>
 
 <style>
-body {
+body{
   margin:0;
-  font-family: -apple-system;
-  background: black;
+  font-family:-apple-system;
   overflow:hidden;
+  background:black;
 }
 
-/* 🌌 Intro */
-#intro {
+/* 🎬 Intro */
+#intro{
   position:fixed;
   width:100%;
   height:100%;
@@ -26,67 +26,75 @@ body {
   z-index:10;
   animation:fadeOut 3s forwards 2s;
 }
-#logo {
-  width:90px;
-  height:90px;
+
+#logo{
+  width:80px;
+  height:80px;
   border:2px solid white;
   border-radius:50%;
   margin-bottom:15px;
-  animation:fadeIn 2s;
+  opacity:0;
+  animation:fadeIn 2s forwards;
 }
-#title {
+
+#title{
   font-size:28px;
-  animation:fadeIn 2s;
+  opacity:0;
+  animation:fadeIn 2s forwards 0.5s;
 }
-@keyframes fadeIn {from{opacity:0} to{opacity:1}}
-@keyframes fadeOut {to{opacity:0;visibility:hidden}}
+
+@keyframes fadeIn{
+  to{opacity:1;}
+}
+@keyframes fadeOut{
+  to{opacity:0;visibility:hidden;}
+}
 
 /* 🌳 Forest */
-#forest {
+#forest{
   width:100%;
   height:100vh;
   display:flex;
   flex-direction:column;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   transition:1s;
   background:linear-gradient(#1a2a33,#2c5364);
+  position:relative;
 }
 
-/* 🌫 atmosphere */
-.glow {
+/* 🌫 glow */
+.glow{
   position:absolute;
   width:300px;
   height:300px;
+  background:rgba(255,255,255,0.08);
   border-radius:50%;
-  background:rgba(255,255,255,0.1);
   filter:blur(80px);
 }
 
+/* 🎨 canvas */
+canvas{
+  background:white;
+  border-radius:12px;
+}
+
 /* 🎨 mood */
-.colors {
-  display:flex;
-  gap:15px;
+.colors{
   position:absolute;
   bottom:30px;
+  display:flex;
+  gap:15px;
 }
-.color {
+.color{
   width:45px;
   height:45px;
   border-radius:50%;
-  cursor:pointer;
   border:2px solid white;
 }
 
-/* 🎨 canvas */
-#canvas {
-  background:white;
-  border-radius:12px;
-  margin-top:20px;
-}
-
 /* 🌍 global */
-#global {
+#global{
   display:none;
   position:fixed;
   width:100%;
@@ -95,13 +103,14 @@ body {
   color:white;
   overflow:auto;
 }
-.post img {
+
+.post img{
   width:100%;
   border-radius:10px;
 }
 
 /* buttons */
-button {
+button{
   margin-top:10px;
   padding:8px 15px;
   border:none;
@@ -112,7 +121,7 @@ button {
 
 <body>
 
-<!-- intro -->
+<!-- 🎬 intro -->
 <div id="intro">
   <div id="logo"></div>
   <div id="title">Echoframe</div>
@@ -122,13 +131,12 @@ button {
 <div id="forest">
   <div class="glow"></div>
 
-  <!-- 🎨 canvas -->
   <canvas id="canvas" width="300" height="200"></canvas>
 
   <button onclick="save()">Share</button>
   <button onclick="openGlobal()">🌍</button>
 
-  <!-- 🎨 顏色情緒 -->
+  <!-- 🎨 顏色選情緒 -->
   <div class="colors">
     <div class="color" style="background:#FFD700" onclick="mood(1)"></div>
     <div class="color" style="background:#87CEFA" onclick="mood(2)"></div>
@@ -145,7 +153,7 @@ button {
 </div>
 
 <script>
-/* 🌳 mood change (REAL forest effect) */
+/* 🌳 情緒森林 */
 function mood(type){
   let f=document.getElementById("forest");
 
@@ -163,43 +171,72 @@ function mood(type){
   }
 }
 
-/* 🎨 DRAW (ipad supported) */
-let canvas=document.getElementById("canvas");
-let ctx=canvas.getContext("2d");
-let draw=false;
+/* 🎨 順滑畫布（已修復） */
+let canvas = document.getElementById("canvas");
+let ctx = canvas.getContext("2d");
 
-canvas.addEventListener("touchstart",()=>draw=true);
-canvas.addEventListener("touchend",()=>draw=false);
-canvas.addEventListener("touchmove",(e)=>{
-  if(!draw) return;
-  let rect=canvas.getBoundingClientRect();
-  let x=e.touches[0].clientX-rect.left;
-  let y=e.touches[0].clientY-rect.top;
-  ctx.fillRect(x,y,3,3);
+ctx.lineWidth = 3;
+ctx.lineCap = "round";
+
+let drawing = false;
+
+/* touch */
+canvas.addEventListener("touchstart", (e)=>{
+  drawing=true;
+  draw(e);
+});
+canvas.addEventListener("touchend", ()=>{
+  drawing=false;
+  ctx.beginPath();
+});
+canvas.addEventListener("touchmove", (e)=>{
+  e.preventDefault();
+  draw(e);
 });
 
 /* mouse */
-canvas.onmousedown=()=>draw=true;
-canvas.onmouseup=()=>draw=false;
-canvas.onmousemove=(e)=>{
-  if(!draw) return;
-  ctx.fillRect(e.offsetX,e.offsetY,3,3);
+canvas.addEventListener("mousedown", ()=>drawing=true);
+canvas.addEventListener("mouseup", ()=>{
+  drawing=false;
+  ctx.beginPath();
+});
+canvas.addEventListener("mousemove", draw);
+
+function draw(e){
+  if(!drawing) return;
+
+  let rect = canvas.getBoundingClientRect();
+  let x,y;
+
+  if(e.touches){
+    x = e.touches[0].clientX - rect.left;
+    y = e.touches[0].clientY - rect.top;
+  }else{
+    x = e.offsetX;
+    y = e.offsetY;
+  }
+
+  ctx.lineTo(x,y);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x,y);
 }
 
-/* 🌍 SAVE (REAL STORAGE) */
+/* 🌍 儲存 */
 function save(){
-  let data=canvas.toDataURL();
-  let arr=JSON.parse(localStorage.getItem("art")||"[]");
+  let data = canvas.toDataURL();
+  let arr = JSON.parse(localStorage.getItem("art")||"[]");
   arr.push(data);
-  localStorage.setItem("art",JSON.stringify(arr));
-  alert("Saved to global canvas");
+  localStorage.setItem("art", JSON.stringify(arr));
+  alert("Saved");
 }
 
-/* 🌍 OPEN GALLERY */
+/* 🌍 畫廊 */
 function openGlobal(){
-  let g=document.getElementById("gallery");
-  g.innerHTML="";
-  let arr=JSON.parse(localStorage.getItem("art")||"[]");
+  let gallery = document.getElementById("gallery");
+  gallery.innerHTML="";
+
+  let arr = JSON.parse(localStorage.getItem("art")||"[]");
 
   arr.forEach(img=>{
     let div=document.createElement("div");
@@ -209,13 +246,12 @@ function openGlobal(){
     i.src=img;
 
     div.appendChild(i);
-    g.appendChild(div);
+    gallery.appendChild(div);
   });
 
   document.getElementById("global").style.display="block";
 }
 
-/* close */
 function closeGlobal(){
   document.getElementById("global").style.display="none";
 }
