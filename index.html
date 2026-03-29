@@ -1,227 +1,223 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Echoframe</title>
 
 <style>
 body {
-  margin: 0;
-  font-family: -apple-system, sans-serif;
-  overflow: hidden;
+  margin:0;
+  font-family: -apple-system;
   background: black;
+  overflow:hidden;
 }
 
-/* 🌌 開場動畫 */
+/* 🌌 Intro */
 #intro {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  background: black;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  color: white;
-  z-index: 10;
-  animation: fadeOut 4s forwards 2s;
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:black;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  color:white;
+  z-index:10;
+  animation:fadeOut 3s forwards 2s;
 }
-
 #logo {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 2px solid white;
-  margin-bottom: 20px;
-  opacity: 0;
-  animation: fadeIn 2s forwards;
+  width:90px;
+  height:90px;
+  border:2px solid white;
+  border-radius:50%;
+  margin-bottom:15px;
+  animation:fadeIn 2s;
 }
-
 #title {
-  font-size: 28px;
-  opacity: 0;
-  animation: fadeIn 2s forwards 0.5s;
+  font-size:28px;
+  animation:fadeIn 2s;
+}
+@keyframes fadeIn {from{opacity:0} to{opacity:1}}
+@keyframes fadeOut {to{opacity:0;visibility:hidden}}
+
+/* 🌳 Forest */
+#forest {
+  width:100%;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  transition:1s;
+  background:linear-gradient(#1a2a33,#2c5364);
 }
 
-@keyframes fadeIn {
-  to { opacity: 1; }
+/* 🌫 atmosphere */
+.glow {
+  position:absolute;
+  width:300px;
+  height:300px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.1);
+  filter:blur(80px);
 }
 
-@keyframes fadeOut {
-  to { opacity: 0; visibility: hidden; }
+/* 🎨 mood */
+.colors {
+  display:flex;
+  gap:15px;
+  position:absolute;
+  bottom:30px;
 }
-
-/* 🌳 心靈森林 */
-#app {
-  width: 100%;
-  height: 100vh;
-  background: linear-gradient(#0f2027, #203a43, #2c5364);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.forest {
-  width: 100%;
-  height: 60%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1), transparent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 20px;
-}
-
-/* 🎨 情緒選擇 */
-.moods {
-  display: flex;
-  gap: 15px;
-  margin-top: 20px;
-}
-
 .color {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  cursor:pointer;
+  border:2px solid white;
 }
 
-/* 🧠 AI */
-#ai {
-  margin-top: 20px;
-  color: white;
-  text-align: center;
+/* 🎨 canvas */
+#canvas {
+  background:white;
+  border-radius:12px;
+  margin-top:20px;
 }
 
-/* 🎨 畫布 */
-canvas {
-  background: white;
-  border-radius: 10px;
-  margin-top: 10px;
-}
-
-/* 🌍 全球畫布 */
+/* 🌍 global */
 #global {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  background: #111;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  color: white;
+  display:none;
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:#111;
+  color:white;
+  overflow:auto;
+}
+.post img {
+  width:100%;
+  border-radius:10px;
 }
 
-.post {
-  border: 1px solid #444;
-  margin: 10px;
-  padding: 10px;
+/* buttons */
+button {
+  margin-top:10px;
+  padding:8px 15px;
+  border:none;
+  border-radius:8px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- 🎬 開場 -->
+<!-- intro -->
 <div id="intro">
   <div id="logo"></div>
   <div id="title">Echoframe</div>
 </div>
 
-<!-- 🌳 主畫面 -->
-<div id="app">
-  <div class="forest" id="forest">🌳 Your Mind Space</div>
+<!-- 🌳 forest -->
+<div id="forest">
+  <div class="glow"></div>
 
-  <!-- 🎨 顏色選情緒 -->
-  <div class="moods">
-    <div class="color" style="background: #FFD700" onclick="setMood('happy')"></div>
-    <div class="color" style="background: #87CEFA" onclick="setMood('calm')"></div>
-    <div class="color" style="background: #555" onclick="setMood('sad')"></div>
-    <div class="color" style="background: #FF6B6B" onclick="setMood('stress')"></div>
-  </div>
-
-  <!-- 🧠 AI -->
-  <div id="ai">Choose your feeling</div>
-
-  <!-- 🎨 畫布 -->
+  <!-- 🎨 canvas -->
   <canvas id="canvas" width="300" height="200"></canvas>
 
-  <button onclick="saveDrawing()">Share to Global Canvas</button>
-  <button onclick="openGlobal()">🌍 Global Canvas</button>
+  <button onclick="save()">Share</button>
+  <button onclick="openGlobal()">🌍</button>
+
+  <!-- 🎨 顏色情緒 -->
+  <div class="colors">
+    <div class="color" style="background:#FFD700" onclick="mood(1)"></div>
+    <div class="color" style="background:#87CEFA" onclick="mood(2)"></div>
+    <div class="color" style="background:#555" onclick="mood(3)"></div>
+    <div class="color" style="background:#FF4C4C" onclick="mood(4)"></div>
+  </div>
 </div>
 
-<!-- 🌍 全球畫布 -->
+<!-- 🌍 gallery -->
 <div id="global">
-  <h2>🌍 Global Canvas</h2>
+  <h2 style="text-align:center">Global Canvas</h2>
   <div id="gallery"></div>
   <button onclick="closeGlobal()">Back</button>
 </div>
 
 <script>
-/* 🌳 Mood 控制 */
-function setMood(mood) {
-  let forest = document.getElementById("forest");
-  let ai = document.getElementById("ai");
+/* 🌳 mood change (REAL forest effect) */
+function mood(type){
+  let f=document.getElementById("forest");
 
-  if (mood === "happy") {
-    forest.style.background = "linear-gradient(#fceabb, #f8b500)";
-    ai.innerText = "Your forest feels bright 🌞";
+  if(type==1){
+    f.style.background="linear-gradient(#fceabb,#f8b500)";
   }
-  if (mood === "calm") {
-    forest.style.background = "linear-gradient(#89f7fe, #66a6ff)";
-    ai.innerText = "Your forest is peaceful 🌊";
+  if(type==2){
+    f.style.background="linear-gradient(#89f7fe,#66a6ff)";
   }
-  if (mood === "sad") {
-    forest.style.background = "linear-gradient(#434343, #000000)";
-    ai.innerText = "It's okay to feel this 🌧️";
+  if(type==3){
+    f.style.background="linear-gradient(#232526,#414345)";
   }
-  if (mood === "stress") {
-    forest.style.background = "linear-gradient(#ff6a6a, #ff0000)";
-    ai.innerText = "Take a breath 🌬️";
+  if(type==4){
+    f.style.background="linear-gradient(#ff416c,#ff4b2b)";
   }
 }
 
-/* 🎨 畫畫功能 */
-let canvas = document.getElementById("canvas");
-let ctx = canvas.getContext("2d");
-let drawing = false;
+/* 🎨 DRAW (ipad supported) */
+let canvas=document.getElementById("canvas");
+let ctx=canvas.getContext("2d");
+let draw=false;
 
-canvas.addEventListener("mousedown", () => drawing = true);
-canvas.addEventListener("mouseup", () => drawing = false);
+canvas.addEventListener("touchstart",()=>draw=true);
+canvas.addEventListener("touchend",()=>draw=false);
+canvas.addEventListener("touchmove",(e)=>{
+  if(!draw) return;
+  let rect=canvas.getBoundingClientRect();
+  let x=e.touches[0].clientX-rect.left;
+  let y=e.touches[0].clientY-rect.top;
+  ctx.fillRect(x,y,3,3);
+});
 
-canvas.addEventListener("mousemove", draw);
-
-function draw(e) {
-  if (!drawing) return;
-  ctx.fillRect(e.offsetX, e.offsetY, 3, 3);
+/* mouse */
+canvas.onmousedown=()=>draw=true;
+canvas.onmouseup=()=>draw=false;
+canvas.onmousemove=(e)=>{
+  if(!draw) return;
+  ctx.fillRect(e.offsetX,e.offsetY,3,3);
 }
 
-/* 📤 分享 */
-function saveDrawing() {
-  let data = canvas.toDataURL();
-  let gallery = document.getElementById("gallery");
-
-  let div = document.createElement("div");
-  div.className = "post";
-
-  let img = document.createElement("img");
-  img.src = data;
-  img.width = 200;
-
-  div.appendChild(img);
-  gallery.appendChild(div);
+/* 🌍 SAVE (REAL STORAGE) */
+function save(){
+  let data=canvas.toDataURL();
+  let arr=JSON.parse(localStorage.getItem("art")||"[]");
+  arr.push(data);
+  localStorage.setItem("art",JSON.stringify(arr));
+  alert("Saved to global canvas");
 }
 
-/* 🌍 Global */
-function openGlobal() {
-  document.getElementById("global").style.display = "block";
+/* 🌍 OPEN GALLERY */
+function openGlobal(){
+  let g=document.getElementById("gallery");
+  g.innerHTML="";
+  let arr=JSON.parse(localStorage.getItem("art")||"[]");
+
+  arr.forEach(img=>{
+    let div=document.createElement("div");
+    div.className="post";
+
+    let i=document.createElement("img");
+    i.src=img;
+
+    div.appendChild(i);
+    g.appendChild(div);
+  });
+
+  document.getElementById("global").style.display="block";
 }
 
-function closeGlobal() {
-  document.getElementById("global").style.display = "none";
+/* close */
+function closeGlobal(){
+  document.getElementById("global").style.display="none";
 }
 </script>
 
