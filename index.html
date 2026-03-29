@@ -13,205 +13,236 @@ body {
   font-family:sans-serif;
 }
 
-/* Splash */
-#splash {
-  position:fixed;
-  width:100%;
-  height:100%;
-  background:black;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  color:white;
-  font-size:28px;
-  animation: fadeOut 2s ease forwards;
-  animation-delay:2s;
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    text-align: center;
+    overflow: hidden;
+    background: radial-gradient(circle at center, #1e1e2f, #0c0c1a);
+    color: white;
 }
 
+.container {
+    padding: 30px;
+/* 🌌 星空動畫背景 */
+body::before {
+    content: "";
+    position: fixed;
+    width: 200%;
+    height: 200%;
+    background: url('https://www.transparenttextures.com/patterns/stardust.png');
+    animation: moveStars 60s linear infinite;
+    opacity: 0.3;
+}
+
+.screen {
+    display: none;
+    animation: fadeIn 0.6s ease;
+@keyframes moveStars {
+    from { transform: translate(0,0); }
+    to { transform: translate(-200px,-200px); }
+}
+
+.active {
+    display: block;
+/* 🌀 開場動畫 */
+#intro {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, #2a2a4a, #0c0c1a);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    letter-spacing: 3px;
+    animation: fadeOut 2.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
 @keyframes fadeOut {
-  to { opacity:0; visibility:hidden; }
+    0% {opacity:1;}
+    70% {opacity:1;}
+    100% {opacity:0; visibility:hidden;}
 }
 
-/* Canvas */
+/* 主內容 */
+.container {
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 28px;
+/* 卡片風格 */
+.card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+/* 按鈕 */
+.mood-btn {
+    width: 80px;
+    height: 80px;
+@@ -50,85 +79,103 @@
+    transform: scale(1.2);
+}
+
+/* 畫布 */
 canvas {
-  position:fixed;
-  top:0;
-  left:0;
+    background: white;
+    background: rgba(255,255,255,0.9);
+    border-radius: 15px;
+    width: 90%;
+    height: 220px;
 }
 
-/* Emotion */
-.emotions {
-  position:absolute;
-  bottom:20px;
-  left:20px;
-  display:flex;
-  gap:10px;
+.button {
+    padding: 12px 25px;
+    border-radius: 20px;
+    border: none;
+    margin-top: 20px;
+    font-size: 16px;
 }
-.color {
-  width:30px;
-  height:30px;
-  border-radius:50%;
-}
-.yellow {background:#ffd54f;}
-.blue {background:#4fc3f7;}
-.gray {background:#9e9e9e;}
-.red {background:#ef5350;}
 
-/* Buttons */
-.actions {
-  position:absolute;
-  bottom:20px;
-  right:20px;
+/* AI box */
+.ai-box {
+    background: rgba(255,255,255,0.2);
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 15px;
+    margin-top: 20px;
+    backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.1);
 }
+
+/* 燈號 */
+.light {
+    font-size: 70px;
+    margin-top: 20px;
+}
+
+/* 隱藏 */
+.screen { display:none; }
+.active { display:block; }
+
 button {
-  background:rgba(255,255,255,0.1);
-  border:none;
-  color:white;
-  padding:8px 12px;
-  margin-left:5px;
-}
-
-/* Gallery */
-#gallery {
-  position:fixed;
-  width:100%;
-  height:100%;
-  background:black;
-  display:none;
-  grid-template-columns:repeat(3,1fr);
-  gap:5px;
-}
-#gallery img {
-  width:100%;
+    padding: 12px 20px;
+    border-radius: 20px;
+    border: none;
+    margin-top: 15px;
 }
 </style>
+
 </head>
 
 <body>
 
-<div id="splash">Echoframe</div>
+<!-- 開場 -->
+<div id="intro">Echoframe</div>
 
-<canvas id="bg"></canvas>
-<canvas id="draw"></canvas>
+<div class="container">
 
-<div class="emotions">
-  <div class="color yellow" data-e="happy"></div>
-  <div class="color blue" data-e="calm"></div>
-  <div class="color gray" data-e="sad"></div>
-  <div class="color red" data-e="stress"></div>
+<!-- Step 1 -->
+<div class="screen active" id="step1">
+    <h1>How do you feel?</h1>
+    <div class="card">
+        <h2>How do you feel today?</h2>
+
+    <button class="mood-btn" style="background:#FFD93D" onclick="nextStep('happy')"></button>
+    <button class="mood-btn" style="background:#6C8EF5" onclick="nextStep('sad')"></button>
+    <button class="mood-btn" style="background:#999" onclick="nextStep('stress')"></button>
+        <button class="mood-btn" style="background:#FFD93D" onclick="nextStep('happy')"></button>
+        <button class="mood-btn" style="background:#6C8EF5" onclick="nextStep('sad')"></button>
+        <button class="mood-btn" style="background:#999" onclick="nextStep('stress')"></button>
+
+    <p>Tap a color to express emotion</p>
+        <p>Express without words</p>
+    </div>
 </div>
 
-<div class="actions">
-  <button id="save">Share</button>
-  <button id="galleryBtn">Global</button>
+<!-- Step 2 -->
+<div class="screen" id="step2">
+    <h1>Express it visually</h1>
+    <div class="card">
+        <h2>Express your emotion</h2>
+
+    <canvas id="canvas"></canvas>
+        <canvas id="canvas"></canvas>
+
+    <button class="button" onclick="nextStep()">Continue</button>
+        <button onclick="nextStep()">Continue</button>
+    </div>
 </div>
 
-<div id="gallery"></div>
+<!-- Step 3 -->
+<div class="screen" id="step3">
+    <h1>Your Emotional State</h1>
+    <div class="card">
+        <h2>Your Emotional State</h2>
+
+    <div id="light" class="light">🟢</div>
+        <div id="light" class="light">🟢</div>
+
+    <div class="ai-box" id="aiText">
+        AI is thinking...
+    </div>
+        <div class="ai-box" id="aiText">
+            AI is reflecting...
+        </div>
+
+    <button class="button" onclick="restart()">Restart</button>
+        <button onclick="restart()">Restart</button>
+    </div>
+</div>
+
+</div>
 
 <script>
+let mood = "happy";
 
-/* Splash */
-setTimeout(()=>{
-  document.getElementById("splash").style.display="none";
-},2000);
+// 開場延遲顯示主畫面
+setTimeout(() => {
+    document.getElementById("intro").style.display = "none";
+}, 2500);
 
-/* 星空 */
-const bg = document.getElementById("bg");
-const ctx = bg.getContext("2d");
-bg.width = innerWidth;
-bg.height = innerHeight;
+function nextStep(selectedMood) {
+    if (selectedMood) mood = selectedMood;
 
-let stars = Array.from({length:120},()=>({
-  x:Math.random()*bg.width,
-  y:Math.random()*bg.height,
-  r:Math.random()*2
-}));
+    document.querySelector('.active').classList.remove('active');
 
-function animate(){
-  ctx.fillStyle="black";
-  ctx.fillRect(0,0,bg.width,bg.height);
+    if (!document.getElementById('step2').classList.contains('active') && selectedMood) {
+    if (selectedMood) {
+        document.getElementById('step2').classList.add('active');
+    } else {
+        document.getElementById('step3').classList.add('active');
+@@ -153,19 +200,13 @@ <h1>Your Emotional State</h1>
+    let text = document.getElementById("aiText");
 
-  ctx.fillStyle="white";
-  stars.forEach(s=>{
-    ctx.beginPath();
-    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-    ctx.fill();
-
-    s.y+=0.3;
-    if(s.y>bg.height) s.y=0;
-  });
-
-  requestAnimationFrame(animate);
+    setTimeout(() => {
+        if (mood === "happy") {
+            text.innerHTML = "It’s great to see your positive energy today 🌿";
+        }
+        if (mood === "stress") {
+            text.innerHTML = "You seem a bit overwhelmed. Try taking a short breath.";
+        }
+        if (mood === "sad") {
+            text.innerHTML = "It’s okay to feel this way. You’re not alone.";
+        }
+        if (mood === "happy") text.innerHTML = "Your energy feels calm and bright.";
+        if (mood === "stress") text.innerHTML = "Take a breath. You're doing enough.";
+        if (mood === "sad") text.innerHTML = "It's okay to feel this. You're not alone.";
+    }, 1200);
 }
-animate();
 
-/* 情緒 */
-document.querySelectorAll(".color").forEach(el=>{
-  el.onclick=()=>{
-    let e = el.dataset.e;
-
-    if(e==="happy") document.body.style.background="#1b5e20";
-    if(e==="calm") document.body.style.background="#01579b";
-    if(e==="sad") document.body.style.background="#263238";
-    if(e==="stress") document.body.style.background="#4e0000";
-  };
-});
-
-/* 畫布 */
-const draw = document.getElementById("draw");
-const dtx = draw.getContext("2d");
-
-draw.width = innerWidth;
-draw.height = innerHeight;
-
-let painting=false;
-
-draw.onmousedown=()=>painting=true;
-draw.onmouseup=()=>painting=false;
-draw.onmousemove=e=>{
-  if(!painting) return;
-  dtx.fillStyle="white";
-  dtx.beginPath();
-  dtx.arc(e.clientX,e.clientY,3,0,Math.PI*2);
-  dtx.fill();
-};
-
-/* Touch 支援 */
-draw.ontouchstart=()=>painting=true;
-draw.ontouchend=()=>painting=false;
-draw.ontouchmove=e=>{
-  let t = e.touches[0];
-  dtx.beginPath();
-  dtx.arc(t.clientX,t.clientY,3,0,Math.PI*2);
-  dtx.fill();
-};
-
-/* Save */
-document.getElementById("save").onclick=()=>{
-  let data = draw.toDataURL();
-  let arr = JSON.parse(localStorage.getItem("art")||"[]");
-  arr.push(data);
-  localStorage.setItem("art",JSON.stringify(arr));
-  alert("Saved");
-};
-
-/* Gallery */
-document.getElementById("galleryBtn").onclick=()=>{
-  let g = document.getElementById("gallery");
-  g.style.display="grid";
-  g.innerHTML="";
-
-  let arr = JSON.parse(localStorage.getItem("art")||"[]");
-
-  arr.forEach(src=>{
-    let img=document.createElement("img");
-    img.src=src;
-    g.appendChild(img);
-  });
-
-  g.onclick=()=>g.style.display="none";
-};
-
-</script>
-</body>
-</html>
+// Drawing
+/* 畫畫 */
+let canvas = document.getElementById("canvas");
+let ctx = canvas.getContext("2d");
