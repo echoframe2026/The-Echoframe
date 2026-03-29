@@ -1,50 +1,217 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Echoframe</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Echoframe</title>
 
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="manifest" href="manifest.json"/>
+<style>
+body {
+  margin:0;
+  overflow:hidden;
+  background:black;
+  font-family:sans-serif;
+}
 
+/* Splash */
+#splash {
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:black;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:white;
+  font-size:28px;
+  animation: fadeOut 2s ease forwards;
+  animation-delay:2s;
+}
+
+@keyframes fadeOut {
+  to { opacity:0; visibility:hidden; }
+}
+
+/* Canvas */
+canvas {
+  position:fixed;
+  top:0;
+  left:0;
+}
+
+/* Emotion */
+.emotions {
+  position:absolute;
+  bottom:20px;
+  left:20px;
+  display:flex;
+  gap:10px;
+}
+.color {
+  width:30px;
+  height:30px;
+  border-radius:50%;
+}
+.yellow {background:#ffd54f;}
+.blue {background:#4fc3f7;}
+.gray {background:#9e9e9e;}
+.red {background:#ef5350;}
+
+/* Buttons */
+.actions {
+  position:absolute;
+  bottom:20px;
+  right:20px;
+}
+button {
+  background:rgba(255,255,255,0.1);
+  border:none;
+  color:white;
+  padding:8px 12px;
+  margin-left:5px;
+}
+
+/* Gallery */
+#gallery {
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:black;
+  display:none;
+  grid-template-columns:repeat(3,1fr);
+  gap:5px;
+}
+#gallery img {
+  width:100%;
+}
+</style>
 </head>
 
 <body>
 
-<!-- Opening -->
-<div id="splash">
-  <div class="logo">Echoframe</div>
+<div id="splash">Echoframe</div>
+
+<canvas id="bg"></canvas>
+<canvas id="draw"></canvas>
+
+<div class="emotions">
+  <div class="color yellow" data-e="happy"></div>
+  <div class="color blue" data-e="calm"></div>
+  <div class="color gray" data-e="sad"></div>
+  <div class="color red" data-e="stress"></div>
 </div>
 
-<!-- Main -->
-<div id="app" class="hidden">
-
-  <!-- 星空 + 森林 -->
-  <canvas id="bg"></canvas>
-
-  <!-- 情緒顏色 -->
-  <div class="emotion-picker">
-    <div class="color yellow" data-emotion="happy"></div>
-    <div class="color blue" data-emotion="calm"></div>
-    <div class="color gray" data-emotion="sad"></div>
-    <div class="color red" data-emotion="stress"></div>
-  </div>
-
-  <!-- 畫布 -->
-  <canvas id="draw"></canvas>
-
-  <!-- Actions -->
-  <div class="actions">
-    <button id="save">Share</button>
-    <button id="galleryBtn">Global</button>
-  </div>
-
+<div class="actions">
+  <button id="save">Share</button>
+  <button id="galleryBtn">Global</button>
 </div>
 
-<!-- Gallery -->
-<div id="gallery" class="hidden"></div>
+<div id="gallery"></div>
 
-<script src="app.js"></script>
+<script>
+
+/* Splash */
+setTimeout(()=>{
+  document.getElementById("splash").style.display="none";
+},2000);
+
+/* 星空 */
+const bg = document.getElementById("bg");
+const ctx = bg.getContext("2d");
+bg.width = innerWidth;
+bg.height = innerHeight;
+
+let stars = Array.from({length:120},()=>({
+  x:Math.random()*bg.width,
+  y:Math.random()*bg.height,
+  r:Math.random()*2
+}));
+
+function animate(){
+  ctx.fillStyle="black";
+  ctx.fillRect(0,0,bg.width,bg.height);
+
+  ctx.fillStyle="white";
+  stars.forEach(s=>{
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fill();
+
+    s.y+=0.3;
+    if(s.y>bg.height) s.y=0;
+  });
+
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* 情緒 */
+document.querySelectorAll(".color").forEach(el=>{
+  el.onclick=()=>{
+    let e = el.dataset.e;
+
+    if(e==="happy") document.body.style.background="#1b5e20";
+    if(e==="calm") document.body.style.background="#01579b";
+    if(e==="sad") document.body.style.background="#263238";
+    if(e==="stress") document.body.style.background="#4e0000";
+  };
+});
+
+/* 畫布 */
+const draw = document.getElementById("draw");
+const dtx = draw.getContext("2d");
+
+draw.width = innerWidth;
+draw.height = innerHeight;
+
+let painting=false;
+
+draw.onmousedown=()=>painting=true;
+draw.onmouseup=()=>painting=false;
+draw.onmousemove=e=>{
+  if(!painting) return;
+  dtx.fillStyle="white";
+  dtx.beginPath();
+  dtx.arc(e.clientX,e.clientY,3,0,Math.PI*2);
+  dtx.fill();
+};
+
+/* Touch 支援 */
+draw.ontouchstart=()=>painting=true;
+draw.ontouchend=()=>painting=false;
+draw.ontouchmove=e=>{
+  let t = e.touches[0];
+  dtx.beginPath();
+  dtx.arc(t.clientX,t.clientY,3,0,Math.PI*2);
+  dtx.fill();
+};
+
+/* Save */
+document.getElementById("save").onclick=()=>{
+  let data = draw.toDataURL();
+  let arr = JSON.parse(localStorage.getItem("art")||"[]");
+  arr.push(data);
+  localStorage.setItem("art",JSON.stringify(arr));
+  alert("Saved");
+};
+
+/* Gallery */
+document.getElementById("galleryBtn").onclick=()=>{
+  let g = document.getElementById("gallery");
+  g.style.display="grid";
+  g.innerHTML="";
+
+  let arr = JSON.parse(localStorage.getItem("art")||"[]");
+
+  arr.forEach(src=>{
+    let img=document.createElement("img");
+    img.src=src;
+    g.appendChild(img);
+  });
+
+  g.onclick=()=>g.style.display="none";
+};
+
+</script>
 </body>
 </html>
